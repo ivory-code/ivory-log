@@ -1,7 +1,5 @@
+import Home from './Home'
+
 export default function Page() {
-  return (
-    <>
-      <span>Hello World!</span>
-    </>
-  )
+  return <Home />
 }
