@@ -1,42 +1,30 @@
-import {createBrowserClient} from '@/supabase/client'
+import {mockProfiles} from '@/mock/mockData'
 
 export async function createProfile({
-  role,
-  contents,
+  id,
   mainTitle,
   subTitle,
+  role,
   skills,
   tools,
-  imageUrl,
 }: {
-  role: string
-  contents: string
+  id: string
   mainTitle: string
   subTitle: string
-  skills: {
-    name: string
-    bg: string
-  }[]
-  tools: {
-    name: string
-    bg: string
-  }[]
-  imageUrl: string
+  role: string
+  skills: string[]
+  tools: string[]
 }) {
-  const supabase = createBrowserClient()
-
-  try {
-    const {data, error} = await supabase
-      .from('profile')
-      .insert({role, contents, mainTitle, subTitle, skills, tools, imageUrl})
-
-    if (error) {
-      return null
-    }
-
-    return data
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.log(error)
+  const newProfile = {
+    id,
+    mainTitle,
+    subTitle,
+    role,
+    contents: 'This is a mock profile content',
+    imageUrl: '/images/profile.jpg',
+    skills,
+    tools,
   }
+  mockProfiles.push(newProfile)
+  return newProfile
 }

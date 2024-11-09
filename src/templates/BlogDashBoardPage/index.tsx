@@ -1,10 +1,7 @@
-// BlogDashBoardPage.tsx
 'use client'
 
-import axios from 'axios'
-import React, {useCallback, useEffect, useRef, useState} from 'react'
+import React, {useCallback, useEffect, useState, useRef} from 'react'
 
-import {deleteBlog} from '@/app/api/deleteBlog'
 import BlogEditModal, {
   type BlogEditModalRef,
 } from '@/components/BlogEdit/BlogEditModal'
@@ -18,16 +15,16 @@ import Icon from '@/components/Icon'
 import IconButton from '@/components/IconButton'
 import Layout from '@/components/Layout'
 import Typography from '@/components/Typography'
+import {mockBlogs} from '@/mock/mockData' // mock data import
 import {useUser} from '@/store/user'
 import BlogDashBoardPageSkeleton from '@/templates/BlogDashBoardPage/BlogDashBoardPageSkeleton'
-import {type BlogData} from '@/templates/BlogPage'
 
 interface Props {
-  blogsData: BlogData[]
+  blogsData: typeof mockBlogs
   isLoading: boolean
   blogId: string | null
   onChangeBlogId: (id: string | null) => void
-  onDeleteBlog: (blogId: string) => Promise<void>
+  onDeleteBlog: (blogId: string) => void
   refetchBlogs: () => void
 }
 
@@ -42,13 +39,15 @@ const Page = ({
   const editProfileModalRef = useRef<EditProfileModalRef>(null)
   const blogEditModalRef = useRef<BlogEditModalRef>(null)
 
-  const [selectedBlog, setSelectedBlog] = useState<BlogData | null>(null)
+  const [selectedBlog, setSelectedBlog] = useState<
+    (typeof mockBlogs)[0] | null
+  >(null)
 
   const handleEditProfile = () => {
     editProfileModalRef.current?.openModal()
   }
 
-  const handleBlogDetail = (blog: BlogData) => {
+  const handleBlogDetail = (blog: (typeof mockBlogs)[0]) => {
     setSelectedBlog(blog)
     blogEditModalRef.current?.openModal()
   }
@@ -110,7 +109,7 @@ const Page = ({
 const BlogDashBoardPage = () => {
   const user = useUser(state => state.user)
 
-  const [blogsData, setBlogsData] = useState<BlogData[]>([])
+  const [blogsData, setBlogsData] = useState<typeof mockBlogs>([]) // Use mock data type
   const [isLoading, setIsLoading] = useState(true) // 로딩 상태 추가
   const [blogId, setBlogId] = useState<string | null>(null)
 
@@ -125,8 +124,8 @@ const BlogDashBoardPage = () => {
   const fetchBlogsData = useCallback(async () => {
     setIsLoading(true)
     try {
-      const res = await axios.get(`/api/blogDashBoard`)
-      setBlogsData(res.data.blogsData)
+      // Replace API call with mock data
+      setBlogsData(mockBlogs) // Using mockBlogs as the data source
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Failed to fetch blogs data:', error)
@@ -136,14 +135,10 @@ const BlogDashBoardPage = () => {
   }, [])
 
   const handleDeleteBlog = useCallback(
-    async (blogId: string) => {
+    (blogId: string) => {
       if (!user) return
 
-      await deleteBlog({
-        userId: user.id,
-        blogId,
-        role: user.role,
-      })
+      // Replace API call with mock data
       setBlogsData(prevData => prevData.filter(blog => blog.id !== blogId))
       setBlogId(null)
     },

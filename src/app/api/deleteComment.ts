@@ -1,36 +1,9 @@
-import {createBrowserClient} from '@/supabase/client'
+import {mockComments} from '@/mock/mockData'
 
-export async function deleteComment({
-  userId,
-  commentId,
-  role,
-}: {
-  userId: string
-  commentId: string
-  role?: string
-}) {
-  const supabase = createBrowserClient()
-
-  try {
-    const query =
-      role === 'admin'
-        ? supabase.from('comments').delete().eq('id', commentId)
-        : supabase
-            .from('comments')
-            .delete()
-            .eq('user_id', userId)
-            .eq('id', commentId)
-
-    const {data, error} = await query
-
-    if (error) {
-      return null
-    }
-
-    return data
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error(error)
-    return null
+export async function deleteComment({commentId}: {commentId: string}) {
+  const index = mockComments.findIndex(comment => comment.id === commentId)
+  if (index !== -1) {
+    return mockComments.splice(index, 1)[0]
   }
+  return null
 }

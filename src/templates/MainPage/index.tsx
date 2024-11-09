@@ -9,10 +9,8 @@ import IconRow, {type IconsType} from '@/components/IconRow'
 import Layout from '@/components/Layout'
 import LoginForm from '@/components/LoginForm'
 import Typography from '@/components/Typography'
-import {type Database} from '@/supabase/database.types'
+import {type ProfileData} from '@/mock/mockData'
 import MainPageSkeleton from '@/templates/MainPage/MainPageSkeleton'
-
-export type ProfileData = Database['public']['Tables']['profile']['Row']
 
 interface Props {
   profileData: ProfileData | null
@@ -95,7 +93,7 @@ const MainPage = () => {
       // eslint-disable-next-line no-console
       console.error('Error fetching profile data:', error)
     } finally {
-      setIsLoading(false) // 데이터 로드 완료 시 로딩 상태 해제
+      setIsLoading(false)
     }
   }, [])
 

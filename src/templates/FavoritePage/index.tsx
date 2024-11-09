@@ -4,15 +4,20 @@
 import {useRouter} from 'next/navigation'
 import React, {useCallback, useEffect, useState} from 'react'
 
-import {getBlogsFavorites} from '@/app/api/getFavorite'
 import BlogList from '@/components/BlogList'
 import Layout from '@/components/Layout'
 import Typography from '@/components/Typography'
+import {mockFavorites} from '@/mock/mockData' // mock data import
 import {useUser} from '@/store/user'
-import {type Database} from '@/supabase/database.types'
 import FavoritePageSkeleton from '@/templates/FavoritePage/FavoritePageSkeleton'
 
-export type FavoriteData = Database['public']['Tables']['favorites']['Row']
+export type FavoriteData = {
+  id: string
+  post_id: string
+  post_title: string
+  user_id: string
+  created_at: string
+}
 
 interface Props {
   favoritesData: FavoriteData[]
@@ -57,14 +62,17 @@ const FavoritePage = () => {
   const user = useUser(state => state.user)
 
   const [favoritesData, setFavoritesData] = useState<FavoriteData[]>([])
-  const [isLoading, setIsLoading] = useState(true) // 로딩 상태 추가
+  const [isLoading, setIsLoading] = useState(true)
 
   const fetchFavoritesData = useCallback(async () => {
     if (user?.id) {
-      const data = await getBlogsFavorites({userId: user.id})
-      setFavoritesData(data ?? [])
+      // Replace API call with mock data
+      const data = mockFavorites.filter(
+        favorite => favorite.user_id === user.id,
+      )
+      setFavoritesData(data)
     }
-    setIsLoading(false) // 데이터 로드 완료 시 로딩 해제
+    setIsLoading(false)
   }, [user?.id])
 
   useEffect(() => {

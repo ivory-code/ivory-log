@@ -1,24 +1,19 @@
-import {NextResponse} from 'next/server'
-
-import {createBrowserClient} from '@/supabase/client'
+import {mockBlogs} from '@/mock/mockData'
 
 export async function GET() {
-  const supabase = createBrowserClient()
+  // 블로그 관리 대시보드에 필요한 데이터를 mock 데이터로 반환
+  return new Response(JSON.stringify(mockBlogs), {status: 200})
+}
 
-  try {
-    const {data: blogsData, error} = await supabase
-      .from('posts')
-      .select('*')
-      .order('created_at', {ascending: false})
+export async function DELETE(req: Request) {
+  const {id} = await req.json()
 
-    // 오류 발생 시 오류 메시지 응답
-    if (error) {
-      return NextResponse.json({error: error.message}, {status: 500})
-    }
-
-    // 성공 시 blogsData 반환
-    return NextResponse.json({blogsData})
-  } catch {
-    return NextResponse.json({error: 'Error fetching blog data'}, {status: 500})
+  const blogIndex = mockBlogs.findIndex(blog => blog.id === id)
+  if (blogIndex === -1) {
+    return new Response('Blog not found', {status: 404})
   }
+
+  // mock 데이터에서 해당 블로그 삭제
+  mockBlogs.splice(blogIndex, 1)
+  return new Response(JSON.stringify({message: 'Blog deleted'}), {status: 200})
 }

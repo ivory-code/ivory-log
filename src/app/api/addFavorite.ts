@@ -1,29 +1,21 @@
-import {createBrowserClient} from '@/supabase/client'
+import {mockFavorites} from '@/mock/mockData'
 
 export async function addFavorite({
+  postId,
+  postTitle,
   userId,
-  blogId,
-  blogTitle,
 }: {
+  postId: string
+  postTitle: string
   userId: string
-  blogId: string
-  blogTitle: string
 }) {
-  const supabase = createBrowserClient()
-
-  try {
-    const {error} = await supabase.from('favorites').insert({
-      user_id: userId,
-      post_id: blogId,
-      post_title: blogTitle,
-      created_at: new Date().toISOString(),
-    })
-
-    if (error) {
-      return null
-    }
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.log(error)
+  const newFavorite = {
+    id: `${mockFavorites.length + 1}`,
+    post_id: postId,
+    post_title: postTitle,
+    user_id: userId,
+    created_at: new Date().toISOString(),
   }
+  mockFavorites.push(newFavorite)
+  return newFavorite
 }

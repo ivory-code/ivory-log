@@ -1,25 +1,31 @@
-// BlogDetailPage.tsx
 'use client'
 
-import axios from 'axios'
 import {useParams} from 'next/navigation'
 import {type FormEvent, useCallback, useEffect, useState} from 'react'
 import {remark} from 'remark'
 import html from 'remark-html'
 import {twMerge} from 'tailwind-merge'
 
-import {addFavorite} from '@/app/api/addFavorite'
-import {deleteFavorite} from '@/app/api/deleteFavorite'
-import {getBlogFavorite} from '@/app/api/getFavorite'
 import Button from '@/components/Button'
 import Icon from '@/components/Icon'
 import Image from '@/components/Image'
 import Layout from '@/components/Layout'
 import MarkdownView from '@/components/MarkdownView'
 import Typography from '@/components/Typography'
+import {mockBlogs, mockFavorites} from '@/mock/mockData' // mock data import
 import {useUser} from '@/store/user'
 import BlogDetailPageSkeleton from '@/templates/BlogDetailPage/BlogDetailPageSkeleton'
-import {type BlogData} from '@/templates/BlogPage'
+
+export type BlogData = {
+  id: string
+  author_id: string | null
+  content: string
+  created_at: string
+  title: string
+  titleImageUrl: string
+  updated_at: string | null
+  published: boolean | null
+}
 
 const BlogDetailPage = () => {
   const params = useParams()
@@ -39,30 +45,24 @@ const BlogDetailPage = () => {
 
   const fetchBlogDetailData = useCallback(async () => {
     if (blogId) {
-      try {
-        const {data} = await axios.get<{post: BlogData}>(
-          `/api/blogDetail?id=${blogId}`,
-        )
-        setBlogDetailData(data.post)
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error('Failed to fetch blog detail:', error)
-      } finally {
-        setIsLoading(false)
+      // Replace API call with mock data
+      const blog = mockBlogs.find(blog => blog.id === blogId)
+      if (blog) {
+        setBlogDetailData(blog)
       }
     }
+    setIsLoading(false)
   }, [blogId])
 
   const fetchFavoriteData = useCallback(async () => {
-    if (!blogId) {
-      return
-    }
+    if (!blogId || !user?.id) return
 
-    const data = await getBlogFavorite({blogId})
-    if (data?.length) {
-      setIsBookmarked(true)
-    }
-  }, [blogId])
+    // Replace API call with mock data
+    const favorite = mockFavorites.find(
+      fav => fav.user_id === user.id && fav.post_id === blogId,
+    )
+    setIsBookmarked(!!favorite)
+  }, [blogId, user?.id])
 
   const handleSubmit = useCallback(
     async (event: FormEvent) => {
@@ -70,17 +70,25 @@ const BlogDetailPage = () => {
 
       if (!user?.id || !blogDetailData?.title) return
 
+      // Add or remove favorite from mock data
       if (isBookmarked) {
-        await deleteFavorite({userId: user.id, blogId})
+        const index = mockFavorites.findIndex(
+          fav => fav.user_id === user.id && fav.post_id === blogId,
+        )
+        if (index !== -1) {
+          mockFavorites.splice(index, 1) // Remove from mockFavorites
+        }
         setIsBookmarked(false)
-        return
+      } else {
+        mockFavorites.push({
+          user_id: user.id,
+          post_id: blogId,
+          post_title: blogDetailData.title,
+          created_at: new Date().toISOString(),
+          id: `${mockFavorites.length + 1}`,
+        })
+        setIsBookmarked(true)
       }
-      await addFavorite({
-        userId: user.id,
-        blogId,
-        blogTitle: blogDetailData.title,
-      })
-      setIsBookmarked(true)
     },
     [user?.id, blogDetailData?.title, isBookmarked, blogId],
   )

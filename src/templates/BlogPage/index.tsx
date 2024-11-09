@@ -1,20 +1,25 @@
-// BlogPage.tsx
 'use client'
 
 import React, {useEffect, useState, useRef, useCallback} from 'react'
 
 import BlogCard from '@/components/BlogCard'
 import Layout from '@/components/Layout'
-import {createBrowserClient} from '@/supabase/client'
-import {type Database} from '@/supabase/database.types'
+import {mockBlogs} from '@/mock/mockData' // mock data import
 import BlogPageSkeleton from '@/templates/BlogPage/BlogPageSkeleton'
 
-export type BlogData = Database['public']['Tables']['posts']['Row']
+export type BlogData = {
+  id: string
+  author_id: string | null
+  content: string
+  created_at: string
+  title: string
+  titleImageUrl: string
+  updated_at: string | null
+  published: boolean | null
+}
 
 const INITIAL_PAGE_COUNT = 6 // 처음에 불러올 데이터 수
 const LOAD_MORE_COUNT = 2 // 추가로 불러올 데이터 수
-
-const supabase = createBrowserClient()
 
 interface Props {
   isLoading: boolean
@@ -93,13 +98,10 @@ const BlogPage = () => {
   const fetchBlogs = useCallback(async (from: number, to: number) => {
     setIsLoading(true)
     try {
-      const res = await supabase
-        .from('posts')
-        .select('*')
-        .order('created_at', {ascending: false})
-        .range(from, to)
+      // 기존의 Supabase API 호출을 mockData로 대체
+      const moreData = mockBlogs.slice(from, to + 1) // mockBlogs 데이터에서 필요한 만큼 잘라서 반환
 
-      return res.data || []
+      return moreData || []
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Error fetching blogs:', error)
