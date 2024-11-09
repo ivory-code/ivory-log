@@ -4,22 +4,15 @@ import MDEditor from '@uiw/react-md-editor'
 import {useRouter} from 'next/navigation'
 import {useCallback, useEffect, useState} from 'react'
 
-import {createBlog} from '@/app/api/createBlog'
-import {editBlog} from '@/app/api/editBlog'
 import Button from '@/components/Button'
 import Dialog from '@/components/Dialog'
 import ImageUpload from '@/components/ImageUpload'
 import InputField from '@/components/InputField'
 import Typography from '@/components/Typography'
+import {type BlogData} from '@/mock/mockData'
 import {useUser} from '@/store/user'
-import {createBrowserClient} from '@/supabase/client'
-import {type BlogData} from '@/templates/BlogPage'
 
-import type {ChangeEvent} from 'react'
-
-const FILE_MAX_SIZE = 1048576
-
-const supabase = createBrowserClient()
+const FILE_MAX_SIZE = 1048576 // 1MB 제한
 
 const BlogEdit = ({
   blogData,
@@ -44,6 +37,7 @@ const BlogEdit = ({
     message: '',
   })
 
+  // 파일 검증 함수
   const validateFile = (file: File): boolean => {
     const validations = [
       {
@@ -69,7 +63,10 @@ const BlogEdit = ({
     return true
   }
 
-  const handleMainImageChange = (event: ChangeEvent<HTMLInputElement>) => {
+  // 메인 이미지 변경 처리
+  const handleMainImageChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     if (event.target.files) {
       const file = event.target.files[0]
       if (!validateFile(file)) return
@@ -79,27 +76,20 @@ const BlogEdit = ({
     }
   }
 
+  // 이미지 업로드 처리
   const uploadImage = async (file: File) => {
     if (!validateFile(file)) return null
 
-    const {error} = await supabase.storage
-      .from('images')
-      .upload(file.name, file, {cacheControl: '0', upsert: true})
+    // Upload image to the image storage.
+    setDialogConfig({
+      ...dialogConfig,
+      isVisible: true,
+      isError: true,
+      message: '이미지 업로드에 실패했습니다.',
+    })
+    return null
 
-    if (error) {
-      setDialogConfig({
-        ...dialogConfig,
-        isVisible: true,
-        isError: true,
-        message: '이미지 업로드에 실패했습니다.',
-      })
-      return null
-    }
-
-    const {data: publicUrlData} = supabase.storage
-      .from('images')
-      .getPublicUrl(file.name)
-    return publicUrlData.publicUrl || ''
+    // Return Image data.
   }
 
   const handleEdit = async () => {
@@ -118,11 +108,15 @@ const BlogEdit = ({
       }
 
       if (blogData) {
-        await editBlog({id: blogData.id, ...blogPayload})
+        // Edit Blog API.
+        // eslint-disable-next-line no-console
+        console.log('blogPayload', blogPayload)
         refetchBlogs?.()
         setMessage('성공적으로 수정되었습니다.') // 성공 메시지 설정
       } else {
-        await createBlog({id: user?.id ?? '', ...blogPayload})
+        // Add Blog API.
+        // eslint-disable-next-line no-console
+        console.log('userId + blogPayload', `${user?.id} +${blogPayload}`)
         router.push('/blog')
       }
     } catch (error) {

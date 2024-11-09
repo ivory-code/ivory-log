@@ -1,13 +1,16 @@
 'use client'
 
-import React, {useEffect, useState, useRef, useCallback} from 'react'
+import axios from 'axios'
+import React, {useCallback, useEffect, useState, useRef} from 'react'
 
 import BlogCard from '@/components/BlogCard'
 import Layout from '@/components/Layout'
-import {mockBlogs} from '@/mock/mockData' // mock data import
 import BlogPageSkeleton from '@/templates/BlogPage/BlogPageSkeleton'
 
-export type BlogData = {
+const INITIAL_PAGE_COUNT = 2 // 처음에 불러올 데이터 수
+const LOAD_MORE_COUNT = 2 // 추가로 불러올 데이터 수
+
+interface BlogData {
   id: string
   author_id: string | null
   content: string
@@ -15,11 +18,7 @@ export type BlogData = {
   title: string
   titleImageUrl: string
   updated_at: string | null
-  published: boolean | null
 }
-
-const INITIAL_PAGE_COUNT = 6 // 처음에 불러올 데이터 수
-const LOAD_MORE_COUNT = 2 // 추가로 불러올 데이터 수
 
 interface Props {
   isLoading: boolean
@@ -59,13 +58,13 @@ const Page = ({isLoading, hasMore, blogsData, loadMoreBlogs}: Props) => {
   return (
     <Layout>
       <div className="grid grid-cols-1 gap-y-6 md:grid-cols-2 md:gap-x-8">
-        {isLoading && !blogsData.length // 로딩 중이며 초기 데이터가 없는 경우
+        {isLoading && !blogsData.length
           ? Array.from({length: INITIAL_PAGE_COUNT}).map((_, index) => (
               <BlogPageSkeleton key={index} />
             ))
-          : blogsData.map((data, index) => (
+          : blogsData.map(data => (
               <BlogCard
-                key={`${data.id}-${index}`}
+                key={data.id}
                 id={data.id}
                 title={data.title}
                 imageUrl={data.titleImageUrl}
@@ -73,35 +72,24 @@ const Page = ({isLoading, hasMore, blogsData, loadMoreBlogs}: Props) => {
               />
             ))}
       </div>
-      <div ref={observerRef} className="h-10" /> {/* 감지할 빈 요소 */}
+      {hasMore && <div ref={observerRef} className="h-10" />}{' '}
     </Layout>
   )
 }
 
 const BlogPage = () => {
-  const [blogsData, setBlogsData] = useState<BlogData[]>([])
+  const [blogsData, setBlogsData] = useState<BlogData[]>([]) // 초기값을 빈 배열로 설정
+  const [isLoading, setIsLoading] = useState(false)
   const [hasMore, setHasMore] = useState(true) // 더 불러올 데이터가 있는지 여부
-  const [page, setPage] = useState(1) // 페이지 번호
-  const [isLoading, setIsLoading] = useState(false) // 로딩 상태
+  const [page, setPage] = useState(1)
 
-  // 중복 데이터 필터링 함수
-  const filterDuplicateBlogs = (
-    newBlogs: BlogData[],
-    existingBlogs: BlogData[],
-  ) => {
-    return newBlogs.filter(
-      blog => !existingBlogs.some(existingBlog => existingBlog.id === blog.id),
-    )
-  }
-
-  // 데이터 로딩 함수 (초기 로딩 및 추가 로딩)
-  const fetchBlogs = useCallback(async (from: number, to: number) => {
+  const loadBlogs = useCallback(async (from: number, to: number) => {
     setIsLoading(true)
     try {
-      // 기존의 Supabase API 호출을 mockData로 대체
-      const moreData = mockBlogs.slice(from, to + 1) // mockBlogs 데이터에서 필요한 만큼 잘라서 반환
-
-      return moreData || []
+      const {data} = await axios.get<{blogData: BlogData[]}>('/api/blog', {
+        params: {from, to},
+      })
+      return data.blogData || []
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Error fetching blogs:', error)
@@ -111,33 +99,29 @@ const BlogPage = () => {
     }
   }, [])
 
-  // 초기 데이터를 불러오는 함수
   const loadInitialBlogs = useCallback(async () => {
-    const initialData = await fetchBlogs(0, INITIAL_PAGE_COUNT - 1)
+    const initialData = await loadBlogs(0, INITIAL_PAGE_COUNT - 1)
     setBlogsData(initialData)
     if (initialData.length < INITIAL_PAGE_COUNT) {
       setHasMore(false)
     }
-  }, [fetchBlogs])
+  }, [loadBlogs])
 
-  // 추가 데이터를 불러오는 함수
   const loadMoreBlogs = useCallback(async () => {
-    if (isLoading || !hasMore) return // 이미 로딩 중이거나 더 이상 데이터가 없으면 중단
+    if (isLoading || !hasMore) return
 
     const from = page * LOAD_MORE_COUNT
     const to = from + LOAD_MORE_COUNT - 1
-    const moreData = await fetchBlogs(from, to)
+    const moreData = await loadBlogs(from, to)
 
     if (moreData.length > 0) {
-      const filteredBlogs = filterDuplicateBlogs(moreData, blogsData)
-      setBlogsData(prevBlogs => [...prevBlogs, ...filteredBlogs])
+      setBlogsData(prevBlogs => [...prevBlogs, ...moreData])
       setPage(prevPage => prevPage + 1)
     } else {
       setHasMore(false)
     }
-  }, [fetchBlogs, hasMore, isLoading, page, blogsData])
+  }, [isLoading, hasMore, page, loadBlogs])
 
-  // 초기 데이터 로드
   useEffect(() => {
     loadInitialBlogs()
   }, [loadInitialBlogs])

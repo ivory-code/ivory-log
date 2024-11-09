@@ -5,11 +5,13 @@ export async function createComment({
   postId,
   userId,
   username,
+  userRole,
 }: {
   content: string
   postId: string
   userId: string
   username: string
+  userRole: string
 }) {
   const newComment = {
     id: `${mockComments.length + 1}`,
@@ -17,7 +19,7 @@ export async function createComment({
     post_id: postId,
     user_id: userId,
     username,
-    user_role: 'user',
+    user_role: userRole,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   }

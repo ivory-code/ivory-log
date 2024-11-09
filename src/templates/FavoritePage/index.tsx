@@ -1,4 +1,3 @@
-// FavoritePage.tsx
 'use client'
 
 import {useRouter} from 'next/navigation'
@@ -7,7 +6,6 @@ import React, {useCallback, useEffect, useState} from 'react'
 import BlogList from '@/components/BlogList'
 import Layout from '@/components/Layout'
 import Typography from '@/components/Typography'
-import {mockFavorites} from '@/mock/mockData' // mock data import
 import {useUser} from '@/store/user'
 import FavoritePageSkeleton from '@/templates/FavoritePage/FavoritePageSkeleton'
 
@@ -20,11 +18,11 @@ export type FavoriteData = {
 }
 
 interface Props {
-  favoritesData: FavoriteData[]
   isLoading: boolean
+  favoritesData: FavoriteData[]
 }
 
-const Page = ({favoritesData, isLoading}: Props) => {
+const Page = ({isLoading, favoritesData}: Props) => {
   const router = useRouter()
 
   const handleRouter = useCallback(
@@ -35,9 +33,9 @@ const Page = ({favoritesData, isLoading}: Props) => {
   )
 
   return (
-    <div>
-      <Layout>
-        {isLoading ? (
+    <Layout>
+      <div className="grid grid-cols-1 gap-y-6 md:grid-cols-2 md:gap-x-8">
+        {isLoading && !favoritesData.length ? (
           Array.from({length: 5}).map((_, index) => (
             <FavoritePageSkeleton key={index} />
           ))
@@ -45,41 +43,53 @@ const Page = ({favoritesData, isLoading}: Props) => {
           favoritesData.map(data => (
             <div key={data.id} className="flex justify-center items-center">
               <BlogList
-                onClick={() => handleRouter(data.post_id ?? '')}
-                title={data.post_title ?? ''}
+                onClick={() => handleRouter(data.post_id)}
+                title={data.post_title}
               />
             </div>
           ))
         ) : (
           <Typography text="No favorites found." />
         )}
-      </Layout>
-    </div>
+      </div>
+    </Layout>
   )
 }
 
 const FavoritePage = () => {
   const user = useUser(state => state.user)
+  const [favoritesData, setFavoritesData] = useState<FavoriteData[]>([]) // 초기값을 빈 배열로 설정
+  const [isLoading, setIsLoading] = useState(false)
 
-  const [favoritesData, setFavoritesData] = useState<FavoriteData[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const loadFavorites = useCallback(async () => {
+    if (!user?.id) return
 
-  const fetchFavoritesData = useCallback(async () => {
-    if (user?.id) {
-      // Replace API call with mock data
-      const data = mockFavorites.filter(
-        favorite => favorite.user_id === user.id,
-      )
-      setFavoritesData(data)
+    setIsLoading(true)
+    try {
+      // 서버에서 모든 데이터를 가져오기
+      const response = await fetch(`/api/favorite`) // 변경된 부분: userId를 쿼리에서 제거
+      const data = await response.json()
+
+      if (data.favoritesData) {
+        // 필터링: 현재 로그인된 유저의 favorites만 필터링하여 보여줌
+        const filteredFavorites = data.favoritesData.filter(
+          (favorite: FavoriteData) => favorite.user_id === user.id,
+        )
+        setFavoritesData(filteredFavorites)
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Error fetching favorites:', error)
+    } finally {
+      setIsLoading(false)
     }
-    setIsLoading(false)
   }, [user?.id])
 
   useEffect(() => {
     if (user?.id) {
-      void fetchFavoritesData()
+      loadFavorites()
     }
-  }, [fetchFavoritesData, user?.id])
+  }, [loadFavorites, user?.id])
 
   return <Page isLoading={isLoading} favoritesData={favoritesData} />
 }

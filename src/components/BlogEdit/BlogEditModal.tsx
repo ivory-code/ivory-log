@@ -2,7 +2,7 @@ import {forwardRef, useImperativeHandle, useState} from 'react'
 
 import BlogEdit from '@/components/BlogEdit'
 import Modal from '@/components/Modal'
-import {type BlogData} from '@/templates/BlogPage'
+import {type BlogData} from '@/mock/mockData'
 
 interface BlogEditModalProps {
   blogData: BlogData | undefined

@@ -1,5 +1,6 @@
 'use client'
 
+import axios from 'axios'
 import React, {useCallback, useEffect, useState, useRef} from 'react'
 
 import BlogEditModal, {
@@ -15,12 +16,12 @@ import Icon from '@/components/Icon'
 import IconButton from '@/components/IconButton'
 import Layout from '@/components/Layout'
 import Typography from '@/components/Typography'
-import {mockBlogs} from '@/mock/mockData' // mock data import
+import {type BlogData} from '@/mock/mockData'
 import {useUser} from '@/store/user'
 import BlogDashBoardPageSkeleton from '@/templates/BlogDashBoardPage/BlogDashBoardPageSkeleton'
 
 interface Props {
-  blogsData: typeof mockBlogs
+  blogsData: BlogData[]
   isLoading: boolean
   blogId: string | null
   onChangeBlogId: (id: string | null) => void
@@ -39,15 +40,13 @@ const Page = ({
   const editProfileModalRef = useRef<EditProfileModalRef>(null)
   const blogEditModalRef = useRef<BlogEditModalRef>(null)
 
-  const [selectedBlog, setSelectedBlog] = useState<
-    (typeof mockBlogs)[0] | null
-  >(null)
+  const [selectedBlog, setSelectedBlog] = useState<BlogData | null>(null)
 
   const handleEditProfile = () => {
     editProfileModalRef.current?.openModal()
   }
 
-  const handleBlogDetail = (blog: (typeof mockBlogs)[0]) => {
+  const handleBlogDetail = (blog: BlogData) => {
     setSelectedBlog(blog)
     blogEditModalRef.current?.openModal()
   }
@@ -59,11 +58,7 @@ const Page = ({
           onClick={handleEditProfile}
           className="group w-1/2 h-15 flex justify-center items-center m-3 p-3.5 border border-n-3 rounded-xl h6 transition-all hover:border-transparent hover:shadow-[0_0_1rem_0.25rem_rgba(0,0,0,0.04),0px_2rem_1.5rem_-1rem_rgba(0,0,0,0.12)] last:mb-0 2xl:p-2.5 lg:p-3.5">
           <div>
-            <Icon
-              className="relative z-1"
-              iconName="blog"
-              fill="fill-accent-3"
-            />
+            <Icon iconName="blog" fill="fill-accent-3" />
             <Typography text="홈 추가/수정" className="base2" />
           </div>
         </Button>
@@ -109,7 +104,7 @@ const Page = ({
 const BlogDashBoardPage = () => {
   const user = useUser(state => state.user)
 
-  const [blogsData, setBlogsData] = useState<typeof mockBlogs>([]) // Use mock data type
+  const [blogsData, setBlogsData] = useState<BlogData[]>([]) // Use proper type for blogs data
   const [isLoading, setIsLoading] = useState(true) // 로딩 상태 추가
   const [blogId, setBlogId] = useState<string | null>(null)
 
@@ -124,8 +119,8 @@ const BlogDashBoardPage = () => {
   const fetchBlogsData = useCallback(async () => {
     setIsLoading(true)
     try {
-      // Replace API call with mock data
-      setBlogsData(mockBlogs) // Using mockBlogs as the data source
+      const response = await axios.get('/api/blogDashBoard')
+      setBlogsData(response.data.blogsData) // 데이터를 설정
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Failed to fetch blogs data:', error)
@@ -135,20 +130,26 @@ const BlogDashBoardPage = () => {
   }, [])
 
   const handleDeleteBlog = useCallback(
-    (blogId: string) => {
+    async (blogId: string) => {
       if (!user) return
 
-      // Replace API call with mock data
-      setBlogsData(prevData => prevData.filter(blog => blog.id !== blogId))
-      setBlogId(null)
+      try {
+        await axios.delete(`/api/blogDashBoard`, {
+          data: {id: blogId},
+        })
+        setBlogsData(prevData => prevData.filter(blog => blog.id !== blogId))
+        setBlogId(null)
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error('Failed to delete blog:', error)
+      }
     },
     [user],
   )
 
   useEffect(() => {
     fetchBlogsData()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [fetchBlogsData])
 
   return (
     <>

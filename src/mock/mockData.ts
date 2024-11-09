@@ -33,7 +33,6 @@ export interface BlogData {
   content: string
   created_at: string
   id: string
-  published: boolean | null
   title: string
   titleImageUrl: string
   updated_at: string | null
@@ -100,6 +99,13 @@ export const mockFavorites: FavoriteData[] = [
     post_title: 'Mock Post 2',
     user_id: '2',
   },
+  {
+    created_at: new Date().toISOString(),
+    id: '1',
+    post_id: '103',
+    post_title: 'Mock Post 3',
+    user_id: '1',
+  },
 ]
 
 // posts 데이터 예시
@@ -109,7 +115,6 @@ export const mockBlogs: BlogData[] = [
     content: 'This is the content of mock post 1.',
     created_at: new Date().toISOString(),
     id: '101',
-    published: true,
     title: 'Mock Post 1',
     titleImageUrl:
       'https://i.namu.wiki/i/9n2qm-_o7OVQDujnmphfhgbqRKAV6Ku2bIzbWZV7CAuyxzNhIcLpNSg5hAk4Y2keoLluWLkz-anT1mYK9k5lOw.webp',
@@ -120,8 +125,87 @@ export const mockBlogs: BlogData[] = [
     content: 'This is the content of mock post 2.',
     created_at: new Date().toISOString(),
     id: '102',
-    published: false,
     title: 'Mock Post 2',
+    titleImageUrl:
+      'https://i.namu.wiki/i/9n2qm-_o7OVQDujnmphfhgbqRKAV6Ku2bIzbWZV7CAuyxzNhIcLpNSg5hAk4Y2keoLluWLkz-anT1mYK9k5lOw.webp',
+    updated_at: new Date().toISOString(),
+  },
+  {
+    author_id: '1',
+    content: 'This is the content of mock post 3.',
+    created_at: new Date().toISOString(),
+    id: '103',
+    title: 'Mock Post 3',
+    titleImageUrl:
+      'https://i.namu.wiki/i/9n2qm-_o7OVQDujnmphfhgbqRKAV6Ku2bIzbWZV7CAuyxzNhIcLpNSg5hAk4Y2keoLluWLkz-anT1mYK9k5lOw.webp',
+    updated_at: new Date().toISOString(),
+  },
+  {
+    author_id: '2',
+    content: 'This is the content of mock post 4.',
+    created_at: new Date().toISOString(),
+    id: '104',
+    title: 'Mock Post 4',
+    titleImageUrl:
+      'https://i.namu.wiki/i/9n2qm-_o7OVQDujnmphfhgbqRKAV6Ku2bIzbWZV7CAuyxzNhIcLpNSg5hAk4Y2keoLluWLkz-anT1mYK9k5lOw.webp',
+    updated_at: new Date().toISOString(),
+  },
+  {
+    author_id: '1',
+    content: 'This is the content of mock post 5.',
+    created_at: new Date().toISOString(),
+    id: '105',
+    title: 'Mock Post 5',
+    titleImageUrl:
+      'https://i.namu.wiki/i/9n2qm-_o7OVQDujnmphfhgbqRKAV6Ku2bIzbWZV7CAuyxzNhIcLpNSg5hAk4Y2keoLluWLkz-anT1mYK9k5lOw.webp',
+    updated_at: new Date().toISOString(),
+  },
+  {
+    author_id: '2',
+    content: 'This is the content of mock post 6.',
+    created_at: new Date().toISOString(),
+    id: '106',
+    title: 'Mock Post 6',
+    titleImageUrl:
+      'https://i.namu.wiki/i/9n2qm-_o7OVQDujnmphfhgbqRKAV6Ku2bIzbWZV7CAuyxzNhIcLpNSg5hAk4Y2keoLluWLkz-anT1mYK9k5lOw.webp',
+    updated_at: new Date().toISOString(),
+  },
+  {
+    author_id: '1',
+    content: 'This is the content of mock post 7.',
+    created_at: new Date().toISOString(),
+    id: '107',
+    title: 'Mock Post 7',
+    titleImageUrl:
+      'https://i.namu.wiki/i/9n2qm-_o7OVQDujnmphfhgbqRKAV6Ku2bIzbWZV7CAuyxzNhIcLpNSg5hAk4Y2keoLluWLkz-anT1mYK9k5lOw.webp',
+    updated_at: new Date().toISOString(),
+  },
+  {
+    author_id: '2',
+    content: 'This is the content of mock post 8.',
+    created_at: new Date().toISOString(),
+    id: '108',
+    title: 'Mock Post 8',
+    titleImageUrl:
+      'https://i.namu.wiki/i/9n2qm-_o7OVQDujnmphfhgbqRKAV6Ku2bIzbWZV7CAuyxzNhIcLpNSg5hAk4Y2keoLluWLkz-anT1mYK9k5lOw.webp',
+    updated_at: new Date().toISOString(),
+  },
+  {
+    author_id: '1',
+    content: 'This is the content of mock post 9.',
+    created_at: new Date().toISOString(),
+    id: '109',
+    title: 'Mock Post 9',
+    titleImageUrl:
+      'https://i.namu.wiki/i/9n2qm-_o7OVQDujnmphfhgbqRKAV6Ku2bIzbWZV7CAuyxzNhIcLpNSg5hAk4Y2keoLluWLkz-anT1mYK9k5lOw.webp',
+    updated_at: new Date().toISOString(),
+  },
+  {
+    author_id: '2',
+    content: 'This is the content of mock post 10.',
+    created_at: new Date().toISOString(),
+    id: '110',
+    title: 'Mock Post 10',
     titleImageUrl:
       'https://i.namu.wiki/i/9n2qm-_o7OVQDujnmphfhgbqRKAV6Ku2bIzbWZV7CAuyxzNhIcLpNSg5hAk4Y2keoLluWLkz-anT1mYK9k5lOw.webp',
     updated_at: new Date().toISOString(),
