@@ -60,11 +60,11 @@ const Page = ({isLoading, hasMore, blogsData, loadMoreBlogs}: Props) => {
       <div className="grid grid-cols-1 gap-y-6 md:grid-cols-2 md:gap-x-8">
         {isLoading && !blogsData.length
           ? Array.from({length: INITIAL_PAGE_COUNT}).map((_, index) => (
-              <BlogPageSkeleton key={index} />
+              <BlogPageSkeleton key={`${index}`} />
             ))
-          : blogsData.map(data => (
+          : blogsData.map((data, index) => (
               <BlogCard
-                key={data.id}
+                key={`${data.id}-${index}`}
                 id={data.id}
                 title={data.title}
                 imageUrl={data.titleImageUrl}

@@ -37,11 +37,13 @@ const Page = ({isLoading, favoritesData}: Props) => {
       <div className="grid grid-cols-1 gap-y-6 md:grid-cols-2 md:gap-x-8">
         {isLoading && !favoritesData.length ? (
           Array.from({length: 5}).map((_, index) => (
-            <FavoritePageSkeleton key={index} />
+            <FavoritePageSkeleton key={`${index}`} />
           ))
         ) : favoritesData.length > 0 ? (
-          favoritesData.map(data => (
-            <div key={data.id} className="flex justify-center items-center">
+          favoritesData.map((data, index) => (
+            <div
+              key={`${data.id}-${index}`}
+              className="flex justify-center items-center">
               <BlogList
                 onClick={() => handleRouter(data.post_id)}
                 title={data.post_title}

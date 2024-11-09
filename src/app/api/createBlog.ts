@@ -1,20 +1,22 @@
 import {mockBlogs} from '@/mock/mockData'
 
 export async function createBlog({
+  authorId,
   title,
   content,
-  authorId,
+  imageUrl,
 }: {
+  authorId: string
   title: string
   content: string
-  authorId: string
+  imageUrl: string
 }) {
   const newBlog = {
     id: `${mockBlogs.length + 1}`,
     title,
     content,
     author_id: authorId,
-    titleImageUrl: '/images/default.jpg',
+    titleImageUrl: imageUrl,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     published: true,

@@ -95,9 +95,9 @@ const RightCommentBar = ({
         {isLoading ? (
           <RightCommentBarSkeleton />
         ) : (
-          data.map(comment => (
+          data.map((comment, index) => (
             <CommentBox
-              key={comment.id}
+              key={`${comment.id}-${index}`}
               item={comment}
               isDisabled={isBlogDetailPage}
               onClickPositiveButton={() => handleDelete(comment.id)}

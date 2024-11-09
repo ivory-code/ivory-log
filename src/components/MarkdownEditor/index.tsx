@@ -45,7 +45,7 @@ const MarkdownEditor = () => {
       return
     }
 
-    await createBlog({id: user?.id ?? '', title, content, imageUrl})
+    await createBlog({authorId: user?.id ?? '', title, content, imageUrl})
   }, [content, imageUrl, title, user?.id])
 
   useEffect(() => {

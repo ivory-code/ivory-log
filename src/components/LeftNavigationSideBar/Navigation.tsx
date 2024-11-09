@@ -29,7 +29,7 @@ const Navigation = ({items, isSideBarVisible = false, isAdmin}: Props) => {
 
   return (
     <div className={twMerge(isSideBarVisible && 'px-2')}>
-      {filteredItems.map(item => {
+      {filteredItems.map((item, index) => {
         const isActive = pathname === item.url
         const linkClass = twMerge(
           'flex items-center justify-start h-12 base2 font-semibold text-n-3/75 rounded-lg transition-colors hover:text-n-1 px-3',
@@ -38,7 +38,10 @@ const Navigation = ({items, isSideBarVisible = false, isAdmin}: Props) => {
         )
 
         return (
-          <Link href={item.url} key={item.title} className={linkClass}>
+          <Link
+            href={item.url}
+            key={`${item.title}-${index}`}
+            className={linkClass}>
             <div className="relative w-6 h-6 flex-shrink-0">
               <Icon iconName={item.icon} className={item.iconClass} />
             </div>

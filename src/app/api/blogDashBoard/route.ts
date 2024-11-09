@@ -2,7 +2,6 @@ import {NextResponse} from 'next/server'
 
 import {mockBlogs} from '@/mock/mockData'
 
-// GET 요청 처리 - 블로그 관리 대시보드에 필요한 데이터 반환
 export async function GET() {
   try {
     // mockBlogs에서 모든 데이터를 반환

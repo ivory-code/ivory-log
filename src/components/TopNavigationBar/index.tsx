@@ -17,10 +17,10 @@ const TopNavigationBar = ({user}: TopNavigationBarProps) => {
   return (
     <div className="hidden md:block">
       <div className="flex fixed top-0 left-0 right-0 items-center justify-around bg-n-7 h-14 shadow-md z-50 ">
-        {filteredItems.map(item => (
+        {filteredItems.map((item, index) => (
           <Link
             href={item.url}
-            key={item.title}
+            key={`${item.title}-${index}`}
             className="flex flex-col items-center">
             <Icon
               iconName={item.icon as IconName}

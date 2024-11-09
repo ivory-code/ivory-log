@@ -30,7 +30,9 @@ const IconRow = ({icons, title, className}: IconRowProps) => {
       <Typography text={title} className="base2" />
       <div className="space-y-4">
         {groupedIcons.map((group, groupIndex) => (
-          <div key={groupIndex} className="flex justify-start gap-x-5">
+          <div
+            key={`${group}-${groupIndex}`}
+            className="flex justify-start gap-x-5">
             {group.map((icon, iconIndex) => (
               <div
                 key={`${icon.name}-${iconIndex}`}

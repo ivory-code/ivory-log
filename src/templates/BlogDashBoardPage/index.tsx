@@ -64,7 +64,7 @@ const Page = ({
         </Button>
         {isLoading ? (
           Array.from({length: 5}).map((_, index) => (
-            <BlogDashBoardPageSkeleton key={index} />
+            <BlogDashBoardPageSkeleton key={`${index}`} />
           ))
         ) : blogsData.length > 0 ? (
           blogsData.map(data => (

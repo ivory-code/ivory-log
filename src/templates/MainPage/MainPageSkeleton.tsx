@@ -12,7 +12,10 @@ const SkeletonGroup = ({items, direction = 'col'}: SkeletonGroupProps) => {
   return (
     <div className={wrapperClass}>
       {items.map((item, index) => (
-        <Skeleton key={index} className={item.className} />
+        <Skeleton
+          key={`${item.className}-${index}`}
+          className={item.className}
+        />
       ))}
     </div>
   )
