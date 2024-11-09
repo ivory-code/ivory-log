@@ -1,27 +1,34 @@
 import {mockProfiles} from '@/mock/mockData'
 
 export async function createProfile({
-  id,
+  contents,
+  imageUrl,
   mainTitle,
   subTitle,
   role,
   skills,
   tools,
 }: {
-  id: string
+  contents: string
+  imageUrl: string
   mainTitle: string
   subTitle: string
   role: string
-  skills: string[]
-  tools: string[]
+  skills: {
+    name: string
+    bg: string
+  }[]
+  tools: {
+    name: string
+    bg: string
+  }[]
 }) {
   const newProfile = {
-    id,
     mainTitle,
     subTitle,
     role,
-    contents: 'This is a mock profile content',
-    imageUrl: '/images/profile.jpg',
+    contents,
+    imageUrl,
     skills,
     tools,
   }

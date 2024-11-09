@@ -80,7 +80,7 @@ const BlogEdit = ({
   const uploadImage = async (file: File) => {
     if (!validateFile(file)) return null
 
-    // Upload image to the image storage.
+    // Upload image to storage.
     setDialogConfig({
       ...dialogConfig,
       isVisible: true,

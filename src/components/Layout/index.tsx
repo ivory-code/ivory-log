@@ -1,4 +1,3 @@
-import axios from 'axios'
 import {useParams, usePathname} from 'next/navigation'
 import {type ReactNode, useCallback, useEffect, useState} from 'react'
 
@@ -12,6 +11,7 @@ import LeftNavigationSideBar from '@/components/LeftNavigationSideBar'
 import RightCommentBar from '@/components/RightCommentBar'
 import {type CommentData} from '@/components/RightCommentBar/CommentBox'
 import TopNavigationBar from '@/components/TopNavigationBar'
+import {mockComments} from '@/mock/mockData'
 import {useUser} from '@/store/user'
 import {throttle} from '@/utils/throttle'
 
@@ -33,21 +33,40 @@ const Layout = ({children, isMainView = false}: Props) => {
 
   const isBlogDetailPage = pathname.includes('blog') && params.id !== undefined
 
+  // throttle을 통한 리사이즈 이벤트 최적화
   const handleResize = throttle(() => {
     setIsLeftSideMiniBarVisible(window.innerWidth <= SIDE_BAR_BREAKPOINT)
     setIsRightSideBarVisible(window.innerWidth > COMMENT_BAR_BREAKPOINT)
   }, 200)
 
+  // 댓글 데이터 불러오기 (블로그 상세 페이지)
   const fetchBlogCommentData = useCallback(async () => {
-    const res = await axios(`/api/blogDetail?id=${params.id}`)
-    setBlogCommentData(res.data.comments)
+    try {
+      // Fetch blog comments data.
+      // mockComments에서 해당 post_id에 맞는 댓글만 필터링
+      const filteredComments = mockComments.filter(
+        comment => comment.post_id === params.id,
+      )
+      setBlogCommentData(filteredComments)
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Error fetching blog comments:', error)
+    }
   }, [params.id])
 
+  // 댓글 데이터 불러오기 (블로그 목록)
   const fetchCommentsData = useCallback(async () => {
-    const res = await axios(`/api/blog`)
-    setCommentsData(res.data.comments)
+    try {
+      // Fetch all comments data.
+      // mockComments에서 모든 댓글 데이터를 가져옵니다.
+      setCommentsData(mockComments)
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Error fetching comments:', error)
+    }
   }, [])
 
+  // 댓글 생성
   const handleCreateComment = useCallback(
     async ({
       username,
@@ -58,27 +77,31 @@ const Layout = ({children, isMainView = false}: Props) => {
       userId: string
       content: string
     }) => {
-      const newComment = await createComment({
-        username,
-        userId,
-        blogId: `${params.id}`,
-        content,
-        role: user?.role ?? '',
-      })
+      try {
+        const newComment = await createComment({
+          username,
+          userId,
+          postId: `${params.id}`,
+          content,
+          userRole: user?.role ?? '',
+        })
 
-      if (!newComment) {
-        return
+        if (newComment) {
+          if (isBlogDetailPage) {
+            setBlogCommentData(prevData => [newComment, ...prevData])
+          } else {
+            setCommentsData(prevData => [newComment, ...prevData])
+          }
+        }
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error('Error creating comment:', error)
       }
-
-      if (isBlogDetailPage) {
-        setBlogCommentData(prevData => [newComment, ...prevData])
-        return
-      }
-      setCommentsData(prevData => [newComment, ...prevData])
     },
     [isBlogDetailPage, params.id, user?.role],
   )
 
+  // 댓글 삭제
   const handleDeleteComment = useCallback(
     async ({
       userId,
@@ -89,34 +112,40 @@ const Layout = ({children, isMainView = false}: Props) => {
       commentId: string
       role?: string
     }) => {
-      await deleteComment({userId, commentId, role})
+      try {
+        await deleteComment({userId, commentId, role})
 
-      if (isBlogDetailPage) {
-        setBlogCommentData(prevData =>
-          prevData.filter(comment => comment.id !== commentId),
-        )
-        return
+        if (isBlogDetailPage) {
+          setBlogCommentData(prevData =>
+            prevData.filter(comment => comment.id !== commentId),
+          )
+        } else {
+          setCommentsData(prevData =>
+            prevData.filter(comment => comment.id !== commentId),
+          )
+        }
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error('Error deleting comment:', error)
       }
-      setCommentsData(prevData =>
-        prevData.filter(comment => comment.id !== commentId),
-      )
     },
     [isBlogDetailPage],
   )
 
+  // 리사이즈 이벤트 추가 및 초기화
   useEffect(() => {
     handleResize()
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
   }, [handleResize])
 
+  // 댓글 데이터 불러오기
   useEffect(() => {
     if (isBlogDetailPage) {
       fetchBlogCommentData()
-
-      return
+    } else {
+      fetchCommentsData()
     }
-    fetchCommentsData()
   }, [fetchBlogCommentData, fetchCommentsData, isBlogDetailPage])
 
   return (

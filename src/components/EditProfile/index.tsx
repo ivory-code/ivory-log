@@ -1,6 +1,5 @@
 'use client'
 
-import axios from 'axios'
 import {
   type ChangeEvent,
   type Dispatch,
@@ -22,12 +21,10 @@ import Input from '@/components/Input'
 import Modal from '@/components/Modal'
 import Textarea from '@/components/Textarea'
 import Typography from '@/components/Typography'
+import {type ProfileData} from '@/mock/mockData'
 import {useUser} from '@/store/user'
-import {createBrowserClient} from '@/supabase/client'
-import {type ProfileData} from '@/templates/MainPage'
 
 const FILE_MAX_SIZE = 1048576
-const supabase = createBrowserClient()
 
 interface EditProfileModalProps {}
 
@@ -112,34 +109,20 @@ const EditProfileModal = forwardRef<EditProfileModalRef, EditProfileModalProps>(
       async (file: File) => {
         if (!validateFile(file)) return null
 
-        const {error} = await supabase.storage
-          .from('images')
-          .upload(file.name, file, {cacheControl: '0', upsert: true})
+        // Upload Image to storage.
 
-        if (error) {
-          openDialog('이미지 업로드에 실패했습니다.', true)
-          return null
-        }
+        // Error Handling.
+        openDialog('이미지 업로드에 실패했습니다.', true)
+        return null
 
-        const {data: publicUrlData} = supabase.storage
-          .from('images')
-          .getPublicUrl(file.name)
-        return publicUrlData.publicUrl || ''
+        // Return Image Data.
       },
       [validateFile],
     )
 
     const fetchProfileData = useCallback(async () => {
       try {
-        const {data} = await axios.get<{profileData: ProfileData[]}>(
-          '/api/editProfile',
-        )
-        const profile = data.profileData[0]
-        setProfileData(profile)
-        setMainTitle(profile.mainTitle ?? '')
-        setSubTitle(profile.subTitle ?? '')
-        setContent(profile.contents ?? '')
-        setImageUrl(profile.imageUrl ?? '')
+        // Get Profile Data API.
       } catch (error) {
         // eslint-disable-next-line no-console
         console.error('Error fetching profile data:', error)
@@ -164,8 +147,8 @@ const EditProfileModal = forwardRef<EditProfileModalRef, EditProfileModalProps>(
         }
 
         const updatedProfile = profileData
-          ? await editProfile(profilePayload)
-          : await createProfile(profilePayload)
+          ? await editProfile({...profilePayload})
+          : await createProfile({...profilePayload})
 
         if (updatedProfile) {
           setDialogConfig(prev => ({

@@ -1,28 +1,37 @@
 import {mockProfiles} from '@/mock/mockData'
 
 export async function editProfile({
-  id,
+  contents,
+  imageUrl,
   mainTitle,
   subTitle,
   role,
   skills,
   tools,
 }: {
-  id: string
+  contents: string
+  imageUrl: string
   mainTitle: string
   subTitle: string
   role: string
-  skills: string[]
-  tools: string[]
+  skills: {
+    name: string
+    bg: string
+  }[]
+  tools: {
+    name: string
+    bg: string
+  }[]
 }) {
-  const profile = mockProfiles.find(profile => profile.id === id)
-  if (profile) {
-    profile.mainTitle = mainTitle
-    profile.subTitle = subTitle
-    profile.role = role
-    profile.skills = skills
-    profile.tools = tools
-    return profile
-  }
-  return null
+  const profile = mockProfiles[0]
+
+  profile.contents = contents
+  profile.imageUrl = imageUrl
+  profile.mainTitle = mainTitle
+  profile.subTitle = subTitle
+  profile.role = role
+  profile.skills = skills
+  profile.tools = tools
+
+  return profile
 }

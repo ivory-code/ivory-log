@@ -72,7 +72,9 @@ const RightCommentBar = ({
 
   useEffect(() => {
     // 데이터를 불러오면 로딩 상태 해제
-    if (data.length > 0) setIsLoading(false)
+    if (data) {
+      setIsLoading(false)
+    }
   }, [data])
 
   return (
