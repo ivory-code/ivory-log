@@ -28,7 +28,9 @@ const Layout = ({children, isMainView = false}: Props) => {
   const [commentsData, setCommentsData] = useState<CommentData[]>([])
   const [blogCommentData, setBlogCommentData] = useState<CommentData[]>([])
 
-  const isBlogDetailPage = pathname.includes('blog') && params.id !== undefined
+  const isBlogDetailPage = pathname
+    ? pathname.includes('blog') && params.id !== undefined
+    : false
 
   // throttle을 통한 리사이즈 이벤트 최적화
   const handleResize = throttle(() => {
