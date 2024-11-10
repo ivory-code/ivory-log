@@ -2,6 +2,8 @@ import {NextResponse} from 'next/server'
 
 import {mockBlogs} from '@/shared/mock/mockData'
 
+export const runtime = 'edge'
+
 export async function GET(req: Request) {
   const url = new URL(req.url)
   const id = url.searchParams.get('id') // 쿼리 파라미터로 id 추출
