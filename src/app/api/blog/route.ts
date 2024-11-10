@@ -1,5 +1,7 @@
 import {mockBlogs} from '@/shared/mock/mockData'
 
+export const runtime = 'edge'
+
 export async function GET(req: Request) {
   // URL 파라미터로부터 from과 to를 받아옵니다.
   const url = new URL(req.url)

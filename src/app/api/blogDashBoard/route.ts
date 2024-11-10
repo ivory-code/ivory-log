@@ -2,6 +2,8 @@ import {NextResponse} from 'next/server'
 
 import {mockBlogs} from '@/shared/mock/mockData'
 
+export const runtime = 'edge'
+
 export async function GET() {
   try {
     // mockBlogs에서 모든 데이터를 반환
