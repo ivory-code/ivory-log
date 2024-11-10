@@ -20,6 +20,8 @@ import {type BlogData} from '@/shared/types'
 import {useUser} from '@/store/user'
 import Layout from '@/widgets/Layout/components'
 
+export const runtime = 'experimental-edge'
+
 interface Props {
   blogsData: BlogData[]
   isLoading: boolean
