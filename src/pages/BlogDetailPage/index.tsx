@@ -26,7 +26,7 @@ const BlogDetailPage = () => {
   const [htmlContent, setHtmlContent] = useState('')
   const [isLoading, setIsLoading] = useState(true)
 
-  const blogId = `${params.id}`
+  const blogId = `${params?.id}`
 
   const convertMarkdownToHtml = useCallback(async (markdownBody: string) => {
     const processedContent = await remark().use(html).process(markdownBody)
