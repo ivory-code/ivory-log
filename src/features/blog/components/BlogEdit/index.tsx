@@ -1,3 +1,5 @@
+'use client'
+
 import MDEditor from '@uiw/react-md-editor'
 import {forwardRef} from 'react'
 
