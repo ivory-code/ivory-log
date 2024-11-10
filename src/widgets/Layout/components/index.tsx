@@ -83,7 +83,7 @@ const Layout = ({children, isMainView = false}: Props) => {
         const newComment = await createComment({
           username,
           userId,
-          postId: `${params.id}`,
+          postId: params && params.id ? `${params.id}` : '',
           content,
           userRole: user?.role ?? '',
         })
@@ -100,7 +100,7 @@ const Layout = ({children, isMainView = false}: Props) => {
         console.error('Error creating comment:', error)
       }
     },
-    [isBlogDetailPage, params.id, user?.role],
+    [isBlogDetailPage, params, user?.role],
   )
 
   // 댓글 삭제
