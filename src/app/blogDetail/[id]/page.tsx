@@ -1,4 +1,4 @@
-import BlogDetailPage from '@/templates/BlogDetailPage'
+import BlogDetailPage from '@/pages/BlogDetailPage'
 
 import type {NextPage} from 'next'
 

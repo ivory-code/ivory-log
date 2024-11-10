@@ -1,4 +1,4 @@
-import MainPage from '@/templates/MainPage'
+import MainPage from '@/pages/MainPage'
 
 const Home = () => {
   return <MainPage />

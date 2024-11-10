@@ -1,34 +1,26 @@
-import {createBrowserClient} from '@/supabase/client'
+import {mockBlogs} from '@/shared/mock/mockData'
 
 export async function createBlog({
-  id,
+  authorId,
   title,
-  imageUrl,
   content,
+  imageUrl,
 }: {
-  id: string
+  authorId: string
   title: string
-  imageUrl: string
   content: string
+  imageUrl: string
 }) {
-  const supabase = createBrowserClient()
-
-  try {
-    const {data, error} = await supabase.from('posts').insert({
-      author_id: id,
-      title,
-      content,
-      created_at: new Date().toISOString(),
-      published: true,
-      titleImageUrl: imageUrl,
-    })
-
-    if (error) {
-      return null
-    }
-    return data
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.log(error)
+  const newBlog = {
+    id: `${mockBlogs.length + 1}`,
+    title,
+    content,
+    author_id: authorId,
+    titleImageUrl: imageUrl,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    published: true,
   }
+  mockBlogs.push(newBlog)
+  return newBlog
 }

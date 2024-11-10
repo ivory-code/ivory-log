@@ -1,18 +1,19 @@
-import {createBrowserClient} from '@/supabase/client'
+import {mockProfiles} from '@/shared/mock/mockData'
 
 export async function editProfile({
-  role,
   contents,
+  imageUrl,
   mainTitle,
   subTitle,
+  role,
   skills,
   tools,
-  imageUrl,
 }: {
-  role: string
   contents: string
+  imageUrl: string
   mainTitle: string
   subTitle: string
+  role: string
   skills: {
     name: string
     bg: string
@@ -21,23 +22,16 @@ export async function editProfile({
     name: string
     bg: string
   }[]
-  imageUrl: string
 }) {
-  const supabase = createBrowserClient()
+  const profile = mockProfiles[0]
 
-  try {
-    const {data, error} = await supabase
-      .from('profile')
-      .update({role, contents, mainTitle, subTitle, skills, tools, imageUrl})
-      .eq('role', role)
-      .select('*')
+  profile.contents = contents
+  profile.imageUrl = imageUrl
+  profile.mainTitle = mainTitle
+  profile.subTitle = subTitle
+  profile.role = role
+  profile.skills = skills
+  profile.tools = tools
 
-    if (error) {
-      return null
-    }
-    return data[0]
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.log(error)
-  }
+  return profile
 }

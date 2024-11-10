@@ -1,36 +1,9 @@
-import {createBrowserClient} from '@/supabase/client'
+import {mockBlogs} from '@/shared/mock/mockData'
 
-export async function deleteBlog({
-  userId,
-  blogId,
-  role,
-}: {
-  userId: string
-  blogId: string
-  role: string
-}) {
-  const supabase = createBrowserClient()
-
-  try {
-    const query =
-      role === 'admin'
-        ? supabase.from('posts').delete().eq('id', blogId)
-        : supabase
-            .from('comments')
-            .delete()
-            .eq('user_id', userId)
-            .eq('user_role', role)
-
-    const {data, error} = await query
-
-    if (error) {
-      return null
-    }
-
-    return data
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error(error)
-    return null
+export async function deleteBlog({blogId}: {blogId: string}) {
+  const index = mockBlogs.findIndex(blog => blog.id === blogId)
+  if (index !== -1) {
+    return mockBlogs.splice(index, 1)[0]
   }
+  return null
 }

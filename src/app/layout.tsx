@@ -5,7 +5,7 @@ import type {Metadata} from 'next'
 
 import './globals.css'
 
-import SessionProvider from '@/components/SessionProvider'
+import SessionProvider from '@/app/providers/SessionProvider'
 
 import {type ReactNode} from 'react'
 
