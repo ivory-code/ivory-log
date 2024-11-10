@@ -44,15 +44,17 @@ const Layout = ({children, isMainView = false}: Props) => {
     try {
       // Fetch blog comments data.
       // mockComments에서 해당 post_id에 맞는 댓글만 필터링
-      const filteredComments = mockComments.filter(
-        comment => comment.post_id === params.id,
-      )
+      const filteredComments =
+        params && params.id
+          ? mockComments.filter(comment => comment.post_id === params.id)
+          : []
+
       setBlogCommentData(filteredComments)
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Error fetching blog comments:', error)
     }
-  }, [params.id])
+  }, [params])
 
   // 댓글 데이터 불러오기 (블로그 목록)
   const fetchCommentsData = useCallback(async () => {
