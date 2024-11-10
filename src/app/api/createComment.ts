@@ -1,4 +1,4 @@
-import {mockComments} from '@/mock/mockData'
+import {mockComments} from '@/shared/mock/mockData'
 
 export async function createComment({
   content,

@@ -1,4 +1,4 @@
-import {mockBlogs} from '@/mock/mockData'
+import {mockBlogs} from '@/shared/mock/mockData'
 
 export async function createBlog({
   authorId,

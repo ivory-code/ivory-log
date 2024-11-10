@@ -1,4 +1,4 @@
-import {mockBlogs} from '@/mock/mockData'
+import {mockBlogs} from '@/shared/mock/mockData'
 
 export async function GET(req: Request) {
   // URL 파라미터로부터 from과 to를 받아옵니다.

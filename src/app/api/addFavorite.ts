@@ -1,5 +1,5 @@
 // /app/api/addFavorite.ts
-import {mockFavorites} from '@/mock/mockData'
+import {mockFavorites} from '@/shared/mock/mockData'
 
 export async function addFavorite({
   postId,

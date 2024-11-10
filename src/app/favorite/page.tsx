@@ -1,4 +1,4 @@
-import FavoritePage from '@/templates/FavoritePage'
+import FavoritePage from '@/pages/FavoritePage'
 
 import type {NextPage} from 'next'
 

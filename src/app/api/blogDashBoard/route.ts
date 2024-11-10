@@ -1,6 +1,6 @@
 import {NextResponse} from 'next/server'
 
-import {mockBlogs} from '@/mock/mockData'
+import {mockBlogs} from '@/shared/mock/mockData'
 
 export async function GET() {
   try {

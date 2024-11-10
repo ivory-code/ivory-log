@@ -1,6 +1,6 @@
 import {NextResponse} from 'next/server'
 
-import {mockFavorites} from '@/mock/mockData'
+import {mockFavorites} from '@/shared/mock/mockData'
 
 // GET 요청 처리 - 모든 즐겨찾기 반환
 export async function GET() {

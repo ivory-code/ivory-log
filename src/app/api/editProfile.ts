@@ -1,4 +1,4 @@
-import {mockProfiles} from '@/mock/mockData'
+import {mockProfiles} from '@/shared/mock/mockData'
 
 export async function editProfile({
   contents,

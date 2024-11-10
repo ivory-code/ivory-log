@@ -1,4 +1,4 @@
-import BlogDashBoardPage from '@/templates/BlogDashBoardPage'
+import BlogDashBoardPage from '@/pages/BlogDashBoardPage'
 
 import type {NextPage} from 'next'
 

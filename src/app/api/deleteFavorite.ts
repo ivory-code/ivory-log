@@ -1,4 +1,4 @@
-import {mockFavorites} from '@/mock/mockData'
+import {mockFavorites} from '@/shared/mock/mockData'
 
 // DELETE 요청 처리 - 즐겨찾기 삭제
 export async function deleteFavorite({
