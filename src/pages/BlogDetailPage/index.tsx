@@ -7,6 +7,8 @@ import {remark} from 'remark'
 import html from 'remark-html'
 import {twMerge} from 'tailwind-merge'
 
+import {addFavorite} from '@/app/api/addFavorite'
+import {deleteFavorite} from '@/app/api/deleteFavorite'
 import MarkdownView from '@/features/blog/components/MarkdownView'
 import BlogDetailPageSkeleton from '@/pages/BlogDetailPage/ui/BlogDetailPageSkeleton'
 import Button from '@/shared/components/Button'
@@ -37,8 +39,10 @@ const BlogDetailPage = () => {
     if (!blogId) return
     setIsLoading(true)
     try {
-      const {data} = await axios.get(`/api/blogDetail?id=${blogId}`)
-      setBlogDetailData(data)
+      const {data} = await axios.get<{post: BlogData}>(
+        `/api/blogDetail?id=${blogId}`,
+      )
+      setBlogDetailData(data.post)
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Failed to fetch blog detail:', error)
@@ -68,11 +72,15 @@ const BlogDetailPage = () => {
     }
   }, [blogId, user?.id])
 
-  const deleteFavorite = useCallback(async () => {
-    if (!blogId) return
+  const handleDeleteFavorite = useCallback(async () => {
+    if (!blogId || !user?.id || !blogDetailData?.title) return
 
     try {
-      // Remove Favorite.
+      if (isBookmarked) {
+        await deleteFavorite({userId: user.id, blogId})
+        setIsBookmarked(false)
+        return
+      }
       // eslint-disable-next-line no-console
       console.log('Deleted favorite')
       setIsBookmarked(false)
@@ -80,13 +88,18 @@ const BlogDetailPage = () => {
       // eslint-disable-next-line no-console
       console.error('Error removing favorite:', error)
     }
-  }, [blogId])
+  }, [blogDetailData?.title, blogId, isBookmarked, user?.id])
 
-  const addFavorite = useCallback(async () => {
+  const handleAddFavorite = useCallback(async () => {
     if (!user?.id || !blogDetailData?.title) return
 
     try {
-      // Add Favorite.
+      await addFavorite({
+        userId: user.id,
+        blogId,
+        blogTitle: blogDetailData.title,
+      })
+      setIsBookmarked(true)
       // eslint-disable-next-line no-console
       console.log('Added favorite')
       setIsBookmarked(true)
@@ -94,7 +107,7 @@ const BlogDetailPage = () => {
       // eslint-disable-next-line no-console
       console.error('Error adding favorite:', error)
     }
-  }, [blogDetailData?.title, user?.id])
+  }, [blogDetailData?.title, blogId, user?.id])
 
   const handleSubmit = useCallback(
     async (event: FormEvent) => {
@@ -103,15 +116,15 @@ const BlogDetailPage = () => {
       if (!user?.id || !blogDetailData?.title) return
 
       if (isBookmarked) {
-        await deleteFavorite()
+        await handleDeleteFavorite()
       } else {
-        await addFavorite()
+        await handleAddFavorite()
       }
     },
     [
-      addFavorite,
+      handleAddFavorite,
       blogDetailData?.title,
-      deleteFavorite,
+      handleDeleteFavorite,
       isBookmarked,
       user?.id,
     ],

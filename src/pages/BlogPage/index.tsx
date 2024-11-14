@@ -1,15 +1,17 @@
 'use client'
 
-import axios from 'axios'
 import React, {useCallback, useEffect, useState, useRef} from 'react'
 
 import BlogCard from '@/features/blog/components/BlogCard'
 import BlogPageSkeleton from '@/pages/BlogPage/ui/BlogPageSkeleton'
 import {type BlogData} from '@/shared/types'
+import {createBrowserClient} from '@/supabase/client'
 import Layout from '@/widgets/Layout/components'
 
 const INITIAL_PAGE_COUNT = 2 // 처음에 불러올 데이터 수
 const LOAD_MORE_COUNT = 2 // 추가로 불러올 데이터 수
+
+const supabase = createBrowserClient()
 
 interface Props {
   isLoading: boolean
@@ -77,10 +79,13 @@ const BlogPage = () => {
   const loadBlogs = useCallback(async (from: number, to: number) => {
     setIsLoading(true)
     try {
-      const {data} = await axios.get<{blogData: BlogData[]}>('/api/blog', {
-        params: {from, to},
-      })
-      return data.blogData || []
+      const res = await supabase
+        .from('posts')
+        .select('*')
+        .order('created_at', {ascending: false})
+        .range(from, to)
+
+      return res.data || []
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Error fetching blogs:', error)

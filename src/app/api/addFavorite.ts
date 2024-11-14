@@ -1,22 +1,29 @@
-// /app/api/addFavorite.ts
-import {mockFavorites} from '@/shared/mock/mockData'
+import {createBrowserClient} from '@/supabase/client'
 
 export async function addFavorite({
-  postId,
-  postTitle,
   userId,
+  blogId,
+  blogTitle,
 }: {
-  postId: string
-  postTitle: string
   userId: string
+  blogId: string
+  blogTitle: string
 }) {
-  const newFavorite = {
-    id: `${mockFavorites.length + 1}`, // 새로 추가되는 즐겨찾기의 ID
-    post_id: postId,
-    post_title: postTitle,
-    user_id: userId,
-    created_at: new Date().toISOString(),
+  const supabase = createBrowserClient()
+
+  try {
+    const {error} = await supabase.from('favorites').insert({
+      user_id: userId,
+      post_id: blogId,
+      post_title: blogTitle,
+      created_at: new Date().toISOString(),
+    })
+
+    if (error) {
+      return null
+    }
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.log(error)
   }
-  mockFavorites.push(newFavorite)
-  return newFavorite
 }

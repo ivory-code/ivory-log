@@ -10,7 +10,6 @@ import Input from '@/shared/components/Input'
 import Modal from '@/shared/components/Modal'
 import Textarea from '@/shared/components/Textarea'
 import Typography from '@/shared/components/Typography'
-import {mockProfiles} from '@/shared/mock/mockData'
 import {type ProfileData} from '@/shared/types'
 
 interface EditProfileModalProps {
@@ -73,11 +72,7 @@ const EditProfileModal = forwardRef<EditProfileModalRef, EditProfileModalProps>(
           <div className="mb-4">
             <h2 className="text-xl font-bold mb-2">제목</h2>
             <Input
-              value={
-                profileForm.mainTitle.length === 0
-                  ? mockProfiles[0].mainTitle
-                  : profileForm.mainTitle
-              }
+              value={profileForm.mainTitle}
               onChange={e => handleFormChange('mainTitle', e.target.value)}
               className="w-full p-4 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500"
             />
@@ -85,11 +80,7 @@ const EditProfileModal = forwardRef<EditProfileModalRef, EditProfileModalProps>(
           <div className="mb-4">
             <h2 className="text-xl font-bold mb-2">부제목</h2>
             <Input
-              value={
-                profileForm.subTitle.length === 0
-                  ? mockProfiles[0].subTitle
-                  : profileForm.subTitle
-              }
+              value={profileForm.subTitle}
               onChange={e => handleFormChange('subTitle', e.target.value)}
               className="w-full p-4 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500"
             />
@@ -98,11 +89,7 @@ const EditProfileModal = forwardRef<EditProfileModalRef, EditProfileModalProps>(
             <div className="mt-4 w-2/3 mr-2">
               <h2 className="text-xl font-bold mb-2">내용</h2>
               <Textarea
-                value={
-                  profileForm.content.length === 0
-                    ? mockProfiles[0].contents
-                    : profileForm.content
-                }
+                value={profileForm.content}
                 onChange={e => handleFormChange('content', e.target.value)}
                 className="w-full h-48 p-4 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500"
               />
@@ -124,22 +111,15 @@ const EditProfileModal = forwardRef<EditProfileModalRef, EditProfileModalProps>(
                     className="hidden"
                   />
                 </div>
-                {profileForm.imageUrl ||
-                  (mockProfiles[0].imageUrl && (
-                    <div className="mt-2 flex justify-center items-center">
-                      <Image
-                        src={
-                          profileForm.imageUrl
-                            ? profileForm.imageUrl
-                            : (mockProfiles[0].imageUrl ?? '')
-                        }
-                        alt="Uploaded"
-                        className="max-w-full h-auto rounded-md"
-                        width={140}
-                        height={115}
-                      />
-                    </div>
-                  ))}
+                <div className="mt-2 flex justify-center items-center">
+                  <Image
+                    src={profileForm.imageUrl}
+                    alt="Uploaded"
+                    className="max-w-full h-auto rounded-md"
+                    width={140}
+                    height={115}
+                  />
+                </div>
               </div>
             </div>
           </div>

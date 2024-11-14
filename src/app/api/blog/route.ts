@@ -1,21 +1,27 @@
-import {mockBlogs} from '@/shared/mock/mockData'
+import {NextResponse} from 'next/server'
 
-export const runtime = 'edge'
+import {createBrowserClient} from '@/supabase/client'
 
-export async function GET(req: Request) {
-  // URL 파라미터로부터 from과 to를 받아옵니다.
-  const url = new URL(req.url)
-  const from = parseInt(url.searchParams.get('from') || '0', 10)
-  const to = parseInt(url.searchParams.get('to') || '1', 10)
+export async function GET() {
+  const supabase = createBrowserClient()
 
-  // 요청 범위에 맞는 데이터 반환
-  const data = mockBlogs.slice(from, to + 1)
+  try {
+    // comments 데이터를 가져옴
+    const {data: commentsData, error: commentsError} = await supabase
+      .from('comments')
+      .select('*') // 필요 시 제한 조건 추가 가능
 
-  return new Response(JSON.stringify({blogData: data}), {status: 200})
-}
+    // 오류가 발생하면 오류 메시지와 함께 응답
+    if (commentsError) {
+      return NextResponse.json({error: commentsError.message}, {status: 500})
+    }
 
-export async function POST(req: Request) {
-  const newBlog = await req.json()
-  mockBlogs.push({id: `${mockBlogs.length + 1}`, ...newBlog})
-  return new Response(JSON.stringify(newBlog), {status: 201})
+    // 성공 시 comments 데이터를 반환
+    return NextResponse.json({comments: commentsData})
+  } catch (error) {
+    return NextResponse.json(
+      {error: 'Error fetching comments data'},
+      {status: 500},
+    )
+  }
 }

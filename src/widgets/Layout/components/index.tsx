@@ -1,10 +1,10 @@
+import axios from 'axios'
 import {useParams, usePathname} from 'next/navigation'
 import {type ReactNode, useCallback, useEffect, useState} from 'react'
 
 import {createComment} from '@/app/api/createComment'
 import {deleteComment} from '@/app/api/deleteComment'
 import {COMMENT_BAR_BREAKPOINT, SIDE_BAR_BREAKPOINT} from '@/shared/constants'
-import {mockComments} from '@/shared/mock/mockData'
 import {type CommentData} from '@/shared/types'
 import {throttle} from '@/shared/utils/throttle'
 import {useUser} from '@/store/user'
@@ -42,14 +42,9 @@ const Layout = ({children, isMainView = false}: Props) => {
   // 댓글 데이터 불러오기 (블로그 상세 페이지)
   const fetchBlogCommentData = useCallback(async () => {
     try {
-      // Fetch blog comments data.
-      // mockComments에서 해당 post_id에 맞는 댓글만 필터링
-      const filteredComments =
-        params && params.id
-          ? mockComments.filter(comment => comment.post_id === params.id)
-          : []
+      const res = await axios(`/api/blogDetail?id=${params?.id}`)
 
-      setBlogCommentData(filteredComments)
+      setBlogCommentData(res.data.comments)
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Error fetching blog comments:', error)
@@ -59,9 +54,8 @@ const Layout = ({children, isMainView = false}: Props) => {
   // 댓글 데이터 불러오기 (블로그 목록)
   const fetchCommentsData = useCallback(async () => {
     try {
-      // Fetch all comments data.
-      // mockComments에서 모든 댓글 데이터를 가져옵니다.
-      setCommentsData(mockComments)
+      const res = await axios(`/api/blog`)
+      setCommentsData(res.data.comments)
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Error fetching comments:', error)
@@ -83,7 +77,7 @@ const Layout = ({children, isMainView = false}: Props) => {
         const newComment = await createComment({
           username,
           userId,
-          postId: params && params.id ? `${params.id}` : '',
+          postId: `${params?.id}`,
           content,
           userRole: user?.role ?? '',
         })
