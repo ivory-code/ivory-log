@@ -1,5 +1,3 @@
-'use client'
-
 import MDEditor from '@uiw/react-md-editor'
 import {forwardRef} from 'react'
 
@@ -11,7 +9,6 @@ import Dialog from '@/shared/components/Dialog'
 import Typography from '@/shared/components/Typography'
 import {type BlogData} from '@/shared/types'
 
-// BlogEdit 컴포넌트에서 ref를 사용할 경우
 const BlogEdit = forwardRef<
   HTMLDivElement,
   {blogData?: BlogData; refetchBlogs?: () => void}
@@ -20,6 +17,7 @@ const BlogEdit = forwardRef<
     formData,
     setFormData,
     handleMainImageChange,
+    handleImageDropInEditor, // 함수명 수정된 부분
     handleEdit,
     message,
     dialogConfig,
@@ -44,7 +42,11 @@ const BlogEdit = forwardRef<
 
       {message && (
         <div
-          className={`p-4 mb-4 ${dialogConfig.isError ? 'text-red-800 bg-red-200' : 'text-green-800 bg-green-200'}`}>
+          className={`p-4 mb-4 ${
+            dialogConfig.isError
+              ? 'text-red-800 bg-red-200'
+              : 'text-green-800 bg-green-200'
+          }`}>
           <Typography text={message} className="base2" />
         </div>
       )}
@@ -59,17 +61,22 @@ const BlogEdit = forwardRef<
 
       <ImageUploader
         label="메인 이미지 수정"
-        onImageChange={handleMainImageChange}
+        onImageChange={handleMainImageChange} // 메인 이미지 변경 기능 유지
         imageUrl={formData.imageUrl}
       />
 
-      <div className="flex flex-col mb-4">
+      {/* 에디터 드래그 앤 드롭 이벤트 추가 */}
+      <div
+        className="flex flex-col mb-4"
+        onDrop={handleImageDropInEditor}
+        onDragOver={e => e.preventDefault()}>
         <h2 className="text-xl font-bold mb-2">내용</h2>
         <MDEditor
           value={formData.content}
           onChange={value => setFormData({...formData, content: value || ''})}
           style={{minHeight: '500px'}}
           preview="live"
+          visibleDragbar
         />
       </div>
 

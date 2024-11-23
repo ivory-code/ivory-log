@@ -1,5 +1,3 @@
-'use client'
-
 import {default as NextImage, type ImageProps} from 'next/image'
 import {useState} from 'react'
 import {twMerge} from 'tailwind-merge'
@@ -14,7 +12,7 @@ const Image = ({className = '', sizes = '500px', ...props}: ImageProps) => {
         loaded ? 'opacity-100' : 'opacity-0',
         className,
       )}
-      onLoadingComplete={() => setLoaded(true)}
+      onLoad={() => setLoaded(true)}
       sizes={sizes}
       {...props}
     />

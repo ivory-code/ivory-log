@@ -5,9 +5,8 @@ import type {Metadata} from 'next'
 
 import './globals.css'
 
-import SessionProvider from '@/app/providers/SessionProvider'
-
 import {type ReactNode} from 'react'
+import SessionProvider from '@/app/providers/SessionProvider'
 
 const nunito = Nunito({
   weight: ['200', '300', '400', '500', '600', '700', '800', '900', '1000'],

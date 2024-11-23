@@ -1,10 +1,15 @@
 import {useRouter} from 'next/navigation'
 import {useState, useCallback} from 'react'
 
+import {createBlog} from '@/app/api/createBlog'
+import {editBlog} from '@/app/api/editBlog'
 import {type BlogData} from '@/shared/types'
 import {useUser} from '@/store/user'
+import {createBrowserClient} from '@/supabase/client'
 
 const FILE_MAX_SIZE = 1048576 // 1MB 제한
+
+const supabase = createBrowserClient()
 
 export const useBlogEdit = (blogData?: BlogData) => {
   const user = useUser(state => state.user)
@@ -23,29 +28,45 @@ export const useBlogEdit = (blogData?: BlogData) => {
     message: '',
   })
 
-  // 파일 검증 함수
   const validateFile = useCallback((file: File): boolean => {
-    const validations = [
-      {
-        condition: file.size > FILE_MAX_SIZE,
-        message: '파일 용량은 1MB 이하만 허용됩니다.',
-      },
-    ]
-
-    const invalidValidation = validations.find(({condition}) => condition)
-    if (invalidValidation) {
+    if (file.size > FILE_MAX_SIZE) {
       setDialogConfig({
         isVisible: true,
         isError: true,
-        message: invalidValidation.message,
+        message: '파일 용량은 1MB 이하만 허용됩니다.',
       })
       return false
     }
-
     return true
   }, [])
 
-  // 이미지 변경 처리
+  const uploadImage = useCallback(
+    async (file: File): Promise<string | null> => {
+      if (!validateFile(file)) return null
+
+      const {error} = await supabase.storage
+        .from('images')
+        .upload(file.name, file, {cacheControl: '0', upsert: true})
+
+      if (error) {
+        setDialogConfig({
+          ...dialogConfig,
+          isVisible: true,
+          isError: true,
+          message: '이미지 업로드에 실패했습니다.',
+        })
+        return null
+      }
+
+      const {data: publicUrlData} = supabase.storage
+        .from('images')
+        .getPublicUrl(file.name)
+      return publicUrlData.publicUrl || ''
+    },
+    [dialogConfig, validateFile],
+  )
+
+  // 이미지 파일 변경 처리 (메인 이미지 변경)
   const handleMainImageChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       if (event.target.files) {
@@ -59,22 +80,24 @@ export const useBlogEdit = (blogData?: BlogData) => {
     [validateFile],
   )
 
-  // 이미지 업로드 처리
-  const uploadImage = useCallback(
-    async (file: File): Promise<string | null> => {
-      if (!validateFile(file)) return null
+  // 에디터에서 이미지 드래그 앤 드롭을 통한 추가
+  const handleImageDropInEditor = useCallback(
+    async (event: React.DragEvent<HTMLDivElement>) => {
+      event.preventDefault()
+      if (event.dataTransfer.files && event.dataTransfer.files[0]) {
+        const file = event.dataTransfer.files[0]
+        if (!validateFile(file)) return
 
-      // API 호출 또는 다른 업로드 로직
-      // setDialogConfig({
-      //   ...dialogConfig,
-      //   isVisible: true,
-      //   isError: true,
-      //   message: '이미지 업로드에 실패했습니다.',
-      // })
-
-      return '/uploaded-image-url' // 업로드된 이미지 URL을 반환
+        const imageUrl = await uploadImage(file)
+        if (imageUrl) {
+          setFormData(prev => ({
+            ...prev,
+            content: `${prev.content}\n![이미지](${imageUrl})\n`,
+          }))
+        }
+      }
     },
-    [validateFile],
+    [uploadImage, validateFile],
   )
 
   const handleEdit = useCallback(async () => {
@@ -93,14 +116,10 @@ export const useBlogEdit = (blogData?: BlogData) => {
       }
 
       if (blogData) {
-        // Edit Blog API (예: `updateBlog`)
-        // eslint-disable-next-line no-console
-        console.log('blogPayload', blogPayload)
+        await editBlog({id: blogData.id, ...blogPayload})
         setMessage('성공적으로 수정되었습니다.')
       } else {
-        // Add Blog API
-        // eslint-disable-next-line no-console
-        console.log('userId + blogPayload', `${user?.id} +${blogPayload}`)
+        await createBlog({id: user?.id ?? '', ...blogPayload})
         router.push('/blog')
       }
     } catch (error) {
@@ -110,6 +129,7 @@ export const useBlogEdit = (blogData?: BlogData) => {
         isError: true,
         message: '게시물을 등록/수정할 수 없습니다.',
       })
+      setMessage('게시물을 등록/수정할 수 없습니다.')
     }
   }, [
     formData.imageUrl,
@@ -128,8 +148,10 @@ export const useBlogEdit = (blogData?: BlogData) => {
     setFormData,
     setDialogConfig,
     handleMainImageChange,
+    handleImageDropInEditor,
     handleEdit,
     message,
     dialogConfig,
+    uploadImage,
   }
 }

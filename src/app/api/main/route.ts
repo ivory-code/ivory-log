@@ -1,8 +1,24 @@
-// app/api/editProfile/route.ts
 import {NextResponse} from 'next/server'
 
-import {mockProfiles} from '@/shared/mock/mockData'
+import {createBrowserClient} from '@/supabase/client'
 
 export async function GET() {
-  return NextResponse.json({profileData: mockProfiles})
+  const supabase = createBrowserClient()
+
+  try {
+    const {data: profileData, error} = await supabase
+      .from('profile')
+      .select('*')
+
+    if (error) {
+      return NextResponse.json({error}, {status: 500})
+    }
+
+    return NextResponse.json({profileData})
+  } catch (error) {
+    return NextResponse.json(
+      {error: 'Error fetching blog detail and comments'},
+      {status: 500},
+    )
+  }
 }

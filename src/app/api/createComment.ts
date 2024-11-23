@@ -1,28 +1,42 @@
-import {mockComments} from '@/shared/mock/mockData'
+import {createBrowserClient} from '@/supabase/client'
 
 export async function createComment({
-  content,
-  postId,
-  userId,
   username,
+  userId,
+  postId,
+  content,
   userRole,
 }: {
-  content: string
-  postId: string
-  userId: string
   username: string
+  userId: string
+  postId: string
+  content: string
   userRole: string
 }) {
-  const newComment = {
-    id: `${mockComments.length + 1}`,
-    content,
-    post_id: postId,
-    user_id: userId,
-    username,
-    user_role: userRole,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
+  const supabase = createBrowserClient()
+
+  try {
+    const {data, error} = await supabase
+      .from('comments')
+      .insert([
+        {
+          username: username,
+          user_id: userId,
+          post_id: postId,
+          content,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          user_role: userRole,
+        },
+      ])
+      .select('*')
+
+    if (error) {
+      return null
+    }
+    return data[0]
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.log(error)
   }
-  mockComments.push(newComment)
-  return newComment
 }

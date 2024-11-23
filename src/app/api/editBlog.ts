@@ -1,20 +1,40 @@
-import {mockBlogs} from '@/shared/mock/mockData'
+import {createBrowserClient} from '@/supabase/client'
 
 export async function editBlog({
-  blogId,
+  id,
   title,
+  imageUrl,
   content,
 }: {
-  blogId: string
+  id: string
   title: string
+  imageUrl: string
   content: string
 }) {
-  const blog = mockBlogs.find(blog => blog.id === blogId)
-  if (blog) {
-    blog.title = title
-    blog.content = content
-    blog.updated_at = new Date().toISOString()
-    return blog
+  const supabase = createBrowserClient()
+
+  try {
+    // 블로그 글 수정
+    const {data, error} = await supabase
+      .from('posts')
+      .update({
+        title,
+        content,
+        titleImageUrl: imageUrl,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', id) // 여기서 id를 사용하여 정확한 포스트를 선택
+      .select('*')
+
+    if (error) {
+      // eslint-disable-next-line no-console
+      console.error('Error updating blog:', error)
+      return null
+    }
+
+    return data
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.log('Unexpected error:', error)
   }
-  return null
 }

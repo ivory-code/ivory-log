@@ -1,23 +1,40 @@
-import {NextResponse} from 'next/server'
+import {type NextRequest, NextResponse} from 'next/server'
 
-import {mockBlogs} from '@/shared/mock/mockData'
+import {createBrowserClient} from '@/supabase/client'
 
 export const runtime = 'edge'
 
-export async function GET(req: Request) {
-  const url = new URL(req.url)
-  const id = url.searchParams.get('id') // 쿼리 파라미터로 id 추출
+export async function GET(req: NextRequest) {
+  const supabase = createBrowserClient()
+  const {searchParams} = new URL(req.url)
+  const blogId = searchParams.get('id')
 
-  if (!id) {
-    return NextResponse.json({error: 'ID parameter is missing'}, {status: 400})
+  if (!blogId) {
+    return NextResponse.json({error: 'Blog ID is required'}, {status: 400})
   }
 
-  // mockBlogs에서 해당 id에 맞는 블로그를 찾음
-  const blogDetail = mockBlogs.find(blog => blog.id === id)
+  try {
+    const {data: postData, error: postError} = await supabase
+      .from('posts')
+      .select('*')
+      .eq('id', blogId)
+      .single()
 
-  if (!blogDetail) {
-    return NextResponse.json({error: 'Blog not found'}, {status: 404})
+    const {data: commentsData, error: commentsError} = await supabase
+      .from('comments')
+      .select('*')
+      .eq('post_id', blogId)
+
+    if (postError || commentsError) {
+      const errorMessage = postError?.message || commentsError?.message
+      return NextResponse.json({error: errorMessage}, {status: 500})
+    }
+
+    return NextResponse.json({post: postData, comments: commentsData})
+  } catch (error) {
+    return NextResponse.json(
+      {error: 'Error fetching blog detail and comments'},
+      {status: 500},
+    )
   }
-
-  return NextResponse.json(blogDetail, {status: 200})
 }
