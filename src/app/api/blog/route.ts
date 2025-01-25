@@ -2,8 +2,6 @@ import {NextResponse} from 'next/server'
 
 import {createBrowserClient} from '@/supabase/client'
 
-export const runtime = 'edge'
-
 export async function GET() {
   const supabase = createBrowserClient()
 
