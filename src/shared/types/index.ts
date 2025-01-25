@@ -29,9 +29,9 @@ export interface CommentData {
 
 export interface FavoriteData {
   id: string
-  post_id: string
-  post_title: string
-  user_id: string
+  post_id: string | null
+  post_title: string | null
+  user_id: string | null
   created_at: string
 }
 

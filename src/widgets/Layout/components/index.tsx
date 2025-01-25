@@ -1,4 +1,3 @@
-import axios from 'axios'
 import {useParams, usePathname} from 'next/navigation'
 import {type ReactNode, useCallback, useEffect, useState} from 'react'
 
@@ -25,8 +24,10 @@ const Layout = ({children, isMainView = false}: Props) => {
   const [isLeftSideMiniBarVisible, setIsLeftSideMiniBarVisible] =
     useState(false)
   const [isRightSideBarVisible, setIsRightSideBarVisible] = useState(true)
-  const [commentsData, setCommentsData] = useState<CommentData[]>([])
-  const [blogCommentData, setBlogCommentData] = useState<CommentData[]>([])
+  const [commentsData, setCommentsData] = useState<CommentData[] | null>(null)
+  const [blogCommentData, setBlogCommentData] = useState<CommentData[] | null>(
+    null,
+  )
 
   const hasValidPathname = pathname !== null && pathname.includes('blog')
   const hasValidParams = params !== null && params.id !== undefined
@@ -42,10 +43,14 @@ const Layout = ({children, isMainView = false}: Props) => {
   // 댓글 데이터 불러오기 (블로그 상세 페이지)
   const fetchBlogCommentData = useCallback(async () => {
     try {
-      const res = await axios(`/api/blogDetail?id=${params?.id}`)
-
-      setBlogCommentData(res.data.comments)
+      const response = await fetch(`/api/blogDetail?id=${params?.id}`)
+      if (!response.ok) {
+        throw new Error('Failed to fetch blog comments')
+      }
+      const result = await response.json()
+      setBlogCommentData(result.comments)
     } catch (error) {
+      setBlogCommentData([])
       // eslint-disable-next-line no-console
       console.error('Error fetching blog comments:', error)
     }
@@ -54,9 +59,14 @@ const Layout = ({children, isMainView = false}: Props) => {
   // 댓글 데이터 불러오기 (블로그 목록)
   const fetchCommentsData = useCallback(async () => {
     try {
-      const res = await axios(`/api/blog`)
-      setCommentsData(res.data.comments)
+      const response = await fetch(`/api/blog`)
+      if (!response.ok) {
+        throw new Error('Failed to fetch comments')
+      }
+      const result = await response.json()
+      setCommentsData(result.comments)
     } catch (error) {
+      setCommentsData([])
       // eslint-disable-next-line no-console
       console.error('Error fetching comments:', error)
     }
@@ -84,9 +94,13 @@ const Layout = ({children, isMainView = false}: Props) => {
 
         if (newComment) {
           if (isBlogDetailPage) {
-            setBlogCommentData(prevData => [newComment, ...prevData])
+            setBlogCommentData(prevData =>
+              prevData ? [newComment, ...prevData] : [newComment],
+            )
           } else {
-            setCommentsData(prevData => [newComment, ...prevData])
+            setCommentsData(prevData =>
+              prevData ? [newComment, ...prevData] : [newComment],
+            )
           }
         }
       } catch (error) {
@@ -113,11 +127,15 @@ const Layout = ({children, isMainView = false}: Props) => {
 
         if (isBlogDetailPage) {
           setBlogCommentData(prevData =>
-            prevData.filter(comment => comment.id !== commentId),
+            prevData
+              ? prevData.filter(comment => comment.id !== commentId)
+              : prevData,
           )
         } else {
           setCommentsData(prevData =>
-            prevData.filter(comment => comment.id !== commentId),
+            prevData
+              ? prevData.filter(comment => comment.id !== commentId)
+              : prevData,
           )
         }
       } catch (error) {

@@ -147,8 +147,8 @@ export const useBlogEdit = (blogData?: BlogData) => {
     formData,
     setFormData,
     setDialogConfig,
-    handleMainImageChange, // 메인 이미지 변경 함수 유지
-    handleImageDropInEditor, // 에디터 드래그 앤 드롭 이미지 추가
+    handleMainImageChange,
+    handleImageDropInEditor,
     handleEdit,
     message,
     dialogConfig,

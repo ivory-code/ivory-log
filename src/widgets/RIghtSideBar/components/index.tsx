@@ -1,4 +1,4 @@
-import {useCallback, useState, useEffect} from 'react'
+import {useCallback} from 'react'
 import {twMerge} from 'tailwind-merge'
 
 import LoginForm from '@/features/auth/components/LoginForm'
@@ -10,7 +10,7 @@ import {type User} from '@/store/user'
 import RightSideBarSkeleton from '@/widgets/RIghtSideBar/components/ui/RightSideBarSkeleton'
 
 interface Props {
-  data: CommentData[]
+  data: CommentData[] | null // null이면 데이터 로딩 중
   user: User | null
   className?: string
   createComment?: ({
@@ -35,15 +35,13 @@ interface Props {
 }
 
 const RightSideBar = ({
-  data = [],
+  data,
   user,
   className = '',
   createComment,
   deleteComment,
   isBlogDetailPage = true,
 }: Props) => {
-  const [isLoading, setIsLoading] = useState(true)
-
   const handleInput = useCallback(
     async (content: string) => {
       if (createComment && user) {
@@ -70,12 +68,34 @@ const RightSideBar = ({
     [deleteComment, user],
   )
 
-  useEffect(() => {
-    // 데이터를 불러오면 로딩 상태 해제
-    if (data) {
-      setIsLoading(false)
+  const renderContent = () => {
+    if (data === null) {
+      // 데이터 로딩 중
+      return <RightSideBarSkeleton />
     }
-  }, [data])
+
+    if (data.length === 0) {
+      // 데이터는 있으나 비어 있음
+      return (
+        <div className="flex items-center justify-center h-full text-n-4">
+          <div className="text-center">
+            <p className="body1 text-n-4">댓글이 없습니다.</p>
+            <p className="caption1 text-n-4/75">첫 댓글을 작성해보세요!</p>
+          </div>
+        </div>
+      )
+    }
+
+    // 데이터가 존재
+    return data.map((comment, index) => (
+      <CommentBox
+        key={`${comment.id}-${index}`}
+        item={comment}
+        isDisabled={isBlogDetailPage}
+        onClickPositiveButton={() => handleDelete(comment.id)}
+      />
+    ))
+  }
 
   return (
     <div
@@ -88,22 +108,11 @@ const RightSideBar = ({
       <div className="absolute top-24 left-0 right-0 flex items-center px-9 md:px-6">
         <div className="base2 text-n-4/75">최근 댓글 수</div>
         <div className="ml-3 px-2 bg-n-3 rounded-lg caption1 text-n-4">
-          {data.length}
+          {data ? data.length : 0}
         </div>
       </div>
       <div className="grow overflow-y-auto scroll-smooth items-center px-6 md:px-3">
-        {isLoading ? (
-          <RightSideBarSkeleton />
-        ) : (
-          data.map((comment, index) => (
-            <CommentBox
-              key={`${comment.id}-${index}`}
-              item={comment}
-              isDisabled={isBlogDetailPage}
-              onClickPositiveButton={() => handleDelete(comment.id)}
-            />
-          ))
-        )}
+        {renderContent()}
       </div>
       {isBlogDetailPage && (
         <div className="absolute left-0 right-0 bottom-0 py-6 px-3">

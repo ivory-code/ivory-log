@@ -1,8 +1,8 @@
 'use client'
 
-import axios from 'axios'
 import React, {useCallback, useEffect, useState, useRef} from 'react'
 
+import {deleteBlog} from '@/app/api/deleteBlog'
 import BlogEditModal, {
   type BlogEditModalRef,
 } from '@/features/blog/components/BlogEditModal'
@@ -121,8 +121,12 @@ const BlogDashBoardPage = () => {
   const fetchBlogsData = useCallback(async () => {
     setIsLoading(true)
     try {
-      const response = await axios.get('/api/blogDashBoard')
-      setBlogsData(response.data.blogsData) // 데이터를 설정
+      const response = await fetch('/api/blogDashBoard', {method: 'GET'})
+      if (!response.ok) {
+        throw new Error('Failed to fetch blogs data')
+      }
+      const result = await response.json()
+      setBlogsData(result.blogsData) // 데이터를 설정
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Failed to fetch blogs data:', error)
@@ -136,9 +140,7 @@ const BlogDashBoardPage = () => {
       if (!user) return
 
       try {
-        await axios.delete(`/api/blogDashBoard`, {
-          data: {id: blogId},
-        })
+        await deleteBlog({userId: user.id, blogId, role: user.role})
         setBlogsData(prevData => prevData.filter(blog => blog.id !== blogId))
         setBlogId(null)
       } catch (error) {

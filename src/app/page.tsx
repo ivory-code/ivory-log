@@ -1,6 +1,8 @@
+import {type NextPage} from 'next'
+
 import MainPage from '@/pages/MainPage'
 
-const Home = () => {
+const Home: NextPage = () => {
   return <MainPage />
 }
 
